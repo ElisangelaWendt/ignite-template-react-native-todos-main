@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
 import { Header } from '../components/Header';
 import { Task, TasksList } from '../components/TasksList';
@@ -10,22 +10,27 @@ export function Home() {
 
   function handleAddTask(newTaskTitle: string) {
     //TODO - add new task
-    const newTask = [...tasks, {
-      id: new Date().getTime(),
-      title: newTaskTitle,
-      done: false
-    }]
-    setTasks(newTask)
+    if (tasks.find(task => task.title === newTaskTitle)) {
+      Alert.alert("Task já cadastrada", "Você não pode cadastrar uma task com o mesmo nome")
+    } else {
+
+      const newTask = [...tasks, {
+        id: new Date().getTime(),
+        title: newTaskTitle,
+        done: false
+      }]
+      setTasks(newTask)
+    }
 
   }
 
 
   function handleToggleTaskDone(id: number) {
     //TODO - toggle task done if exists
-    const updatedTasks = tasks.map(task => ({...task}))
+    const updatedTasks = tasks.map(task => ({ ...task }))
     const foundItem = updatedTasks.find(item => item.id === id)
 
-    if(!foundItem){
+    if (!foundItem) {
       return
     }
     foundItem.done = !foundItem.done
@@ -34,10 +39,33 @@ export function Home() {
 
   function handleRemoveTask(id: number) {
     //TODO - remove task from state
-    const removeTask = tasks.filter((task)=> task.id !== id)
-    console.log(removeTask)
-    setTasks(removeTask)
+    Alert.alert("Remover item", "Tem certeza que você deseja remover esse item?", [
+      {
+        text: 'Sim',
+        onPress: () => {
+          const removeTask = tasks.filter((task) => task.id !== id)
+          setTasks(removeTask)
+        },
+        style: 'default',
+      },
+      {
+        text: 'Não',
+        style: 'cancel',
+      },
+    ])
+  }
 
+  function handleEditTask(taskId: number, taskNewTitle : string){
+
+    const updatedTasks = tasks.map(task => ({ ...task }))
+    const foundItem = updatedTasks.find(item => item.id === taskId)
+    
+    if (!foundItem) {
+      return
+    }
+    foundItem.title = taskNewTitle
+    setTasks(updatedTasks)
+    console.log(updatedTasks)
   }
 
   return (
@@ -50,6 +78,7 @@ export function Home() {
         tasks={tasks}
         toggleTaskDone={handleToggleTaskDone}
         removeTask={handleRemoveTask}
+        editTask={handleEditTask}
       />
     </View>
   )
